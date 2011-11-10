@@ -60,14 +60,6 @@ ul.as-selections li.as-selection-item a.as-close {
 }
 
 ul.as-selections li.as-selection-item.blur {
-	color: #666666;
-	background-color: #f4f4f4;
-	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f4f4f4), to(#d5d5d5));
-	border-color: #bbb;
-	border-top-color: #ccc;
-	box-shadow: 0 1px 1px #e9e9e9;
-	-webkit-box-shadow: 0 1px 1px #e9e9e9;
-	-moz-box-shadow: 0 1px 1px #e9e9e9;
 }
 
 ul.as-selections li.as-selection-item.blur a.as-close {

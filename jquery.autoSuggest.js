@@ -124,7 +124,6 @@
 				var timeout = null;
 				var prev = "";
 				var totalSelections = 0;
-				var tab_press = false;
 				
 				// Handle input field events
 				input.focus(function(){			
@@ -181,29 +180,38 @@
 								timeout = setTimeout(function(){ keyChange(); }, opts.keyDelay);
 							}
 							break;
-						case 9: case 188:  // tab or comma
-							tab_press = true;
-							var i_input = input.val().replace(/(,)/g, "");
-							if(i_input != "" && values_input.val().search(","+i_input+",") < 0 && i_input.length >= opts.minChars){	
-								e.preventDefault();
-								var n_data = {};
-								n_data[opts.selectedItemProp] = i_input;
-								n_data[opts.selectedValuesProp] = i_input;																				
-								var lis = $("li", selections_holder).length;
-								add_selected_item(n_data, "00"+(lis+1));
-								input.val("");
-							}
-						case 13: // return
-							tab_press = false;
-							var active = $("li.active:first", results_holder);
-							if(active.length > 0){
-								active.click();
-								results_holder.hide();
-							}
-							if(opts.neverSubmit || active.length > 0){
-								e.preventDefault();
-							}
-							break;
+            case 188: case 9: case 13:  // comma, tab, or return
+
+              // if the user has navigated to the item, treat the key press as a click
+              var active = $("li.active:not('.hover'):first", results_holder);
+              active.toArray().forEach(function(item, i) {
+                // FIXME: this implicitly clears out the input, which the code
+                // below relies on.
+                $(item).click();
+
+                results_holder.hide();
+                e.preventDefault();
+              });
+
+              // if the user has entered input, add the input verbatim
+              var i_input = input.val().replace(/(,)/g, "");
+              if(i_input != "" && values_input.val().search(","+i_input+",") < 0 && i_input.length >= opts.minChars){ 
+                var n_data = {};
+                n_data[opts.selectedItemProp] = i_input;
+                n_data[opts.selectedValuesProp] = i_input;                                        
+                var lis = $("li", selections_holder).length;
+                add_selected_item(n_data, "00"+(lis+1));
+                input.val("");
+
+                results_holder.hide();
+                e.preventDefault();
+              }
+
+              if(opts.neverSubmit) {
+                e.preventDefault();
+              }
+
+              break;
 						default:
 							if(opts.showResultList){
 								if(opts.selectionLimit && $("li.as-selection-item", selections_holder).length >= opts.selectionLimit){
@@ -280,7 +288,7 @@
 							var formatted = $('<li class="as-result-item" id="as-result-item-'+num+'"></li>').click(function(){
 									var raw_data = $(this).data("data");
 									var number = raw_data.num;
-									if($("#as-selection-"+number, selections_holder).length <= 0 && !tab_press){
+									if($("#as-selection-"+number, selections_holder).length <= 0) {
 										var data = raw_data.attributes;
 										input.val("").focus();
 										prev = "";
@@ -288,10 +296,11 @@
 										opts.resultClick.call(this, raw_data);
 										results_holder.hide();
 									}
-									tab_press = false;
-								}).mousedown(function(){ input_focus = false; }).mouseover(function(){
-									$("li", results_ul).removeClass("active");
-									$(this).addClass("active");
+								}).mousedown(function(){ 
+                  input_focus = false; 
+                }).mouseover(function(){
+									$("li", results_ul).removeClass("active hover");
+									$(this).addClass("active hover");
 								}).data("data",{attributes: data[num], num: num_count});
 							var this_data = $.extend({},data[num]);
 							if (!opts.matchCase){ 
@@ -357,7 +366,7 @@
 								start = active.prev();
 							}	
 						}
-						lis.removeClass("active");
+						lis.removeClass("active hover");
 						start.addClass("active");
 					}
 				}
