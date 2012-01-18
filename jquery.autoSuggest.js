@@ -285,9 +285,9 @@
 							// allowDuplicates options is set, forward. If that
 							// option is not set, make we're not looking for
 							// an item that has already been selected.
-							forward = str.search(query) != -1 &&
+							forward = str.indexOf(query) != -1 &&
 								(opts.allowDuplicates ? true :
-								values_input.val().search("," +
+								values_input.val().indexOf("," +
 								data[num][opts.selectedValuesProp] +
 								",") == -1
 								);
